@@ -1,0 +1,1 @@
+Left click to get the selected area's color. Right click for random color

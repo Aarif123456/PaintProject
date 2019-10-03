@@ -1,0 +1,1 @@
+Left click for unfilled ellipses. Right click for filled ellipses. Hold shift to create circles.

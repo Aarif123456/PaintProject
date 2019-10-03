@@ -1,0 +1,1 @@
+Left click for unfilled rectangles. Right click for filled rectangles. Press shift to create squares

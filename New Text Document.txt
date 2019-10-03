@@ -1,0 +1,29 @@
+Change cursor
+Able to increase text size
+Undo redo list for every canvas begins with blank template
+Next song starts playing as soon as next is clicked
+left click circle eraser right fill- eraser  fill bucket Ctrl +s=save,Ctrl +o=open,Ctrl +z=Undo,Ctrl +y=redo,Ctrl +f= Full screen
+Scroll for size(how big)(make list to blit rgb value ,size value ,border value,mx,my and mx,my on canvas, stamp category ,background category)
+Ctrl and scroll for border click to make 0
+Keyboard arrows to make bigger radius from mouse up and down key
+
+stuff to make:
+stamp brush #with populator
+populator# 15 min 
+type in color
+music#15 min
+get open #15min
+get hotkey working #15min
+
+#tool selction
+#cursor 
+#design
+
+putting it toghether
+selection #15 min
+tools #15 min
+
+comp sci
+comp tech
+math test 
+chem homework

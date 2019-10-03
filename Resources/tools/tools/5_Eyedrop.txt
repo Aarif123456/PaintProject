@@ -1,0 +1,1 @@
+Fills an area with the same color. Right click for random color

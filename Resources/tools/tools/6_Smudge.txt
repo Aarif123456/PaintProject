@@ -1,0 +1,1 @@
+Left click on area to darken. Right Click to lighten.

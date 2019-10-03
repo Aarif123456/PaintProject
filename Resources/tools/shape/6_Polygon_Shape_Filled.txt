@@ -1,0 +1,1 @@
+Polygon tool left click to choose points then right click to create a filled polygon

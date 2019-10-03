@@ -1,0 +1,1 @@
+Make the brushes stick to the canvas

@@ -1,0 +1,9 @@
+left click circle eraser right fill- eraser 
+Scroll for width hold spacebar and scroll for alpha ctrl and scroll click to make 0
+Next song starts playing as soon as next is clicked
+Shift perfect ratio (for shape)
+Keyboard arrows to make bigger radius from mouse (for spray paint)
+enter degree -360 to +360  negative = left + = right (for crop)
+
+##loading screen 							
+layered canvas

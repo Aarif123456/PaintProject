@@ -1,0 +1,1 @@
+Gets average of color and mashes it
