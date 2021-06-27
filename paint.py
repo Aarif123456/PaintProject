@@ -2,45 +2,46 @@ from pygame import *
 from random import*
 from tkinter import Tk
 from tkinter import filedialog
-import threading
-screenWidth =1024
-screenHeight =720
-screen = display.set_mode((screenWidth,screenHeight ))
-backgroundCol= (255,255,255)
-#screen.fill(backgroundCol)
-screen.blit(image.load("Resources/design/others/background.png"),(0,0))
+from Canvas import Canvas
+from PaintLayout import PaintLayout
+from BasicTool import BasicTool
+from TextTool import TextTool
+
+backgroundCol= Color(255,255,255)
+
+# Current color
 col=randint(0,255),randint(0,255),randint(0,255)
+# Current size
 size = 10
-
-#highlight surface
-cover = Surface((screenWidth,screenHeight)).convert()#make blank Surface
-cover.set_alpha(255)
-cover.set_colorkey((255,255,255))
-
+paintLayout = PaintLayout()
+screen=paintLayout.screen
+cover=paintLayout.cover
 
 #---------------------------------------------------------------------------
 ################screen set up###############
 #--------------set up logo------------------
-screen.blit(image.load("Resources/design/others/logo.png"),(screenWidth/2-146,0))
-#set up canvas has to be of the ratio 680:480 -> 17:12 for background image to scale properly
-canvasRect=Rect(230,120,510,360) 
-draw.rect(screen,(0,0,0),canvasRect,3)
-draw.rect(screen,(255,255,255),canvasRect)
+paintLayout.createLogo("Resources/design/others/logo.png")
 
+# set up canvas has to be of the ratio 680:480 -> 17:12 for background image to scale properly
+canvasRect=Rect(230,120,510,360) 
+canvas=Canvas(screen, canvasRect)
+
+# React to handle clear
 clearRect = Rect(700,485,40,40)
 screen.blit(transform.scale(image.load("Resources/design/menubar/clear.png"), (40, 40)),clearRect)
 
+# TODO: get picture for delete canvas - as trash can and then also add add canvas
 deleteRect = Rect(230,485,40,40)
 
 canvasNumRect = Rect(465,485,40,40)
-draw.rect(screen,(0,0,0),canvasNumRect,1) #**make hove
+draw.rect(screen,(0,0,0),canvasNumRect,1) # TODO make hover
 canvasBackRect = Rect(384,485,80,40)
 canvasNextRect = Rect(506,485,80,40)
-draw.rect(screen,(0,0,0),canvasBackRect,1) #**make hove
-draw.rect(screen,(0,0,0),canvasNextRect,1) #**make hove
+draw.rect(screen,(0,0,0),canvasBackRect,1) # TODO make hover
+draw.rect(screen,(0,0,0),canvasNextRect,1) # TODO make hover
 
 #--------------set up menu options----------
-menuPics=["open","save","undo","redo","full_screen"] #**full screen not implemented
+menuPics=["open","save","undo","redo","full_screen"] # TODO full screen not implemented
 menuPath = "Resources/design/menubar/"
 menuRect =[]
 for i in range (4):
@@ -48,78 +49,49 @@ for i in range (4):
     screen.blit(transform.scale(image.load(menuPath  + menuPics[i] +".png"), (25, 25)),menuRect[i])
 
 #--------------tool box classes-----------
-toolBoxClassTextRect = Rect(10,120,168,40) #hold text that says tool box class
-toolBoxClassBackRect = Rect(10,160,84,40) #hold next arrow
-toolBoxClassNextRect = Rect(95,160,84,40) #hold next arrow
+toolBoxClassTextRect = Rect(10,120,168,40) # hold text that says tool box class
+toolBoxClassBackRect = Rect(10,160,84,40)  # hold next arrow
+toolBoxClassNextRect = Rect(95,160,84,40)  # hold next arrow
 draw.rect(screen,(0,0,0),toolBoxClassTextRect,2)
 
 
 #--------------set up toolbox------------
-#turn to function to draw
+# turn to function to draw
 toolBoxRect =[]
-toolBoxPath = "Resources/tools/" #path for all types of tools
-#
-toolsClassName = ["tools","shape","brush","spraypaint","edit"] #types of tools for display
+toolBoxPath = "Resources/tools/" # path for all types of tools
+# types of tools for display
+toolsClassName = ["tools","shape","brush","spraypaint","edit"] 
 toolsName=  [["Pencil","Eraser","Fill_Bucket","Text","Eyedrop","Smudge"],
              ["Circle_Shape","Square_Shape","Line_Shape","Explosion_Brush","Polygon_Shape","Polygon_Shape_Filled"],
              ["Circle_Brush","Square_Brush","Color_Masher","Line_Brush","Sticky_Surface","alpha"],
              ["Circle","Square","Rain","Stamp_Brush","Spray_design","Spray_speed"],
              ["Move","Copy","Crop","Rotate","Flip_Vertical","Flip_Horizontal"]
             ]
-            #** for shape add custom made text box which says toggle fill which you highlight when toggled on
-            #for spray paint need picture for square and circle spray and for spray speed just have text box that says speed
-#text renderer from https://www.pygame.org/wiki/TextWrap
-def drawText(surface, text, color, rect, font, aa=False, bkg=None):
-    rect = Rect(rect)
-    y = rect.top
-    lineSpacing = -2
+            # TODO for shape add custom made text box which says toggle fill which you highlight when toggled on
+            # for spray paint need picture for square and circle spray and for spray speed just have text box that says speed
 
-    # get the height of the font
-    fontHeight = font.size("Tg")[1]
 
-    while text:
-        i = 1
-        # determine if the row of text will be outside our area
-        if y + fontHeight > rect.bottom:
-            break
-        # determine maximum width of line
-        while font.size(text[:i])[0] < rect.width and i < len(text):
-            i += 1
-        # if we've wrapped the text, then adjust the wrap to the last word      
-        if i < len(text): 
-            i = text.rfind(" ", 0, i) + 1
-        # render the line and blit it to the surface
-        if bkg:
-            image = font.render(text[:i], 1, color, bkg)
-            image.set_colorkey(bkg)
-        else:
-            image = font.render(text[:i], aa, color)
-        surface.blit(image, (rect.left, y))
-        y += fontHeight + lineSpacing
-        # remove the text we just blitted
-        text = text[i:]
-
-    return text
-
-def openFile():
+def openFile(surface, canvasRect):
     Tk().withdraw()
-    fileFormats = [('All Files','*'),
+    fileFormats = [ ('Portable Network Graphics','*.png'),
                ('Windows Bitmap','*.bmp'),
-               ('Portable Network Graphics','*.png'),
                ('JPEG / JFIF','*.jpg'),
-               ('CompuServer GIF','*.gif'),]
-    filename = filedialog.askopenfile(mode="r",title="Load",filetypes = fileFormats)
-    init()
-    screenCopy = screen.copy()
-    screen.quit()
-    screen.init()
-                    screen = display.set_mode((1280,830))
-                    screen.blit(screenCopy,(0,0))
-    if filename != None:
-        loader = image.load(filename.name)
-        screen.set_clip(canvasRect)
-        screen.blit(loader,canvasRect)
-        screen.set_clip(None)
+               ('CompuServer GIF','*.gif')]
+    file = filedialog.askopenfile(mode="r",title="Load",filetypes = fileFormats)
+    if file != None:
+        renderImage(surface, canvasRect, file)
+
+def renderImage(surface, canvasRect, file):
+    canvasSurface = surface.subsurface(canvasRect)
+    loader = image.load(file.name)
+
+    canvasSurface.blit(transform.smoothscale(loader, (canvasRect.width, canvasRect.height)), (0,0))
+
+def saveFile(surface, canvasRect):
+    Tk().withdraw()
+    file = filedialog.asksaveasfile(mode='w', title = "Save As",defaultextension = ".png")
+    if file != None:
+        image.save(screen.subsurface(canvasRect), file.name)
 
 def renderToolbox(toolClassNum):
     for i in range (len(toolsName[toolClassNum])):
@@ -136,47 +108,46 @@ toolBoxTextRect = Rect(10,470,175,34)
 toolboxTextInfoRect = Rect(10,505,180,140)
 
 def renderToolInfoText(x,y,toolClassNum,toolName):
-    #for the selected tool box box
-    draw.rect(screen,(255,255,255),Rect(5,470,185,34)) #fill up box
-    draw.rect(screen,(0,0,0),Rect(5,470,185,34),1) #add outline
+    # for the selected tool box box
+    draw.rect(screen,(255,255,255),Rect(5,470,185,34)) # fill up box
+    draw.rect(screen,(0,0,0),Rect(5,470,185,34),1) # add outline
     hover = False
-    #clear text info box
+    # clear text info box
     draw.rect(screen,(255,255,255),Rect(5,505,185,140)) 
     draw.rect(screen,(0,0,0),Rect(5,505,185,140),1)
 
     for i in range(6):
         if toolBoxRect[i].collidepoint(x,y):
-            drawText(screen, open(toolBoxPath+toolsClassName[toolClass]+ "/"+str(i+1)+"_"+ toolsName[toolClassNum][i]+".txt").read().splitlines()[0], (0,0,0), toolboxTextInfoRect, font.SysFont("Comic Sans MS", 17))
+            PaintLayout.drawText(screen, open(toolBoxPath+toolsClassName[toolClass]+ "/"+str(i+1)+"_"+ toolsName[toolClassNum][i]+".txt").read().splitlines()[0], (0,0,0), toolboxTextInfoRect,  17)
             toolName = toolsName[toolClassNum][i]
             hover =True
     if not hover:
         for i in range(6):
             if toolsName[toolClassNum][i]==toolName:
-                drawText(screen, open(toolBoxPath+toolsClassName[toolClass]+ "/"+str(i+1)+"_"+ toolName+".txt").read().splitlines()[0], (0,0,0), toolboxTextInfoRect, font.SysFont("Comic Sans MS", 17))
+                PaintLayout.drawText(screen, open(toolBoxPath+toolsClassName[toolClass]+ "/"+str(i+1)+"_"+ toolName+".txt").read().splitlines()[0], (0,0,0), toolboxTextInfoRect,  17)
                 break    
 
     toolText = toolName.replace("_", " ")
-    drawText(screen,toolText, (0,255,0), toolBoxTextRect, font.SysFont("Comic Sans MS", 17))
+    PaintLayout.drawText(screen,toolText, (0,255,0), toolBoxTextRect,  17)
 
-#pallete box
+# pallete box
 palleteRect = Rect(412,540,145,145)
 palleteBackRect = Rect(412,686,72,30)
 palleteNextRect = Rect(412+73,686,72,30)
 draw.rect(screen,(0,0,0),palleteBackRect,1)
 draw.rect(screen,(0,0,0),palleteNextRect,1)
 draw.rect(screen,(0,0,0),palleteRect,1)
-screen.blit(transform.scale(image.load("Resources/palette/Palette1.png"), (145, 145)),palleteRect)
 
-#color value
-currentColorRect = Rect(30,646,160,30)  #Text says current color written in current color
+# color value
+currentColorRect = Rect(30,646,160,30)  # Text says current color written in current color
 draw.rect(screen,(255,255,255),Rect(5,646,185,30),0)
-draw.rect(screen,(0,0,0),Rect(5,646,185,30),1) #outline in black
+draw.rect(screen,(0,0,0),Rect(5,646,185,30),1) # outline in black
 
 def renderSizeRect(size):
-    fullSizeRect = Rect(5,677,185,30) #the entire size rect
+    fullSizeRect = Rect(5,677,185,30) # the entire size rect
     currenSizeRect = Rect(5,677,(int)(9.25*size),30)
-    draw.rect(screen,(255,255,255),fullSizeRect) #white background
-    draw.rect(screen,(0,0,0),currenSizeRect ) #fill in depending on the size
+    draw.rect(screen,(255,255,255),fullSizeRect) # white background
+    draw.rect(screen,(0,0,0),currenSizeRect ) # fill in depending on the size
     draw.rect(screen,(0,0,0),fullSizeRect ,1)
 
 
@@ -243,57 +214,16 @@ musicNextRect = Rect(900,80,84,25)
 draw.rect(screen,(0,0,0),musicBackRect ,1)
 draw.rect(screen,(0,0,0),musicNextRect ,1)
 
+maxPallate = 5
+curPallate = 1
     
-def clear():
-    draw.rect(screen,(0,0,0),canvasRect,3)
-    draw.rect(screen,(255,255,255),canvasRect)
-#functionality of tools
-def pencil(surface,col):
-    mx,my=mouse.get_pos()
-    draw.line(surface,(col),(oldmx,oldmy),(mx,my),3)
-#eraser use brush class with white 
-def fill(col):
-    fillpos=[(mx,my)]
-    oldcol=screen.get_at((mx,my))
-    if oldcol!=col:
-        while len(fillpos)>0:
-            while len(fillpos)>0:
-                x,y = fillpos.pop()
-                if canvasRect.collidepoint(x,y) and screen.get_at((x,y))==oldcol:
-                    screen.set_at((x,y),col)
-                    fillpos+=[(x+1,y), (x-1,y),(x,y+1),(x,y-1)]
-    
-
-def text(surface,color,msg,x,y):
-    comicFont = font.SysFont("Comic Sans MS", size)
-    txtpic=comicFont.render (msg, False, (color))
-    surface.blit(txtpic,(x,y))#300,300 replaced by mx,my correlation to middle
-
-#shift lists holds expected value when you press shift and message will hold msg user wants to type
-numshiftlist=[')','!','@','#','$','%','^','&','*','(']
-font.init()
 msg=''
-def eyedrop():
-    return screen.get_at((mx,my))
-    
-def tonechanger(surface,tone):
-    x,y =mx,my
-    s = min(10,size)
-    for i in range(-s*3,s*3):
-        for j in range(-s*3,s*3):
-            csx,csy=x+i,y+j
-            if(canvasRect.collidepoint(csx,csy)):
-                tcol=screen.get_at((csx,csy))
-                r = min(max(0,tcol[0]-tone),255)
-                g = min(max(0,tcol[1]-tone),255)
-                b = min(max(0,tcol[2]-tone),255)
-                ncol=(r,g,b)    
-                screen.set_at((csx,csy),ncol)          
-   
+
         
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#higlighter blit on cover    
+basicTool = BasicTool(screen)
+#highlighter blit on cover    
 def circlebrush(surface,x,y,col,width):
     draw.circle(surface,(col),(x,y),width)
 def rectbrush(surface,x,y,col,width):
@@ -302,7 +232,7 @@ def linebrush(surface,x,y,col,width):
     draw.line(surface,(col),(mx,my),(oldmx,oldmy),width)
 def explosionbrush(surface,col,width):
     draw.line(surface,(col),(mx,my),(mx+randint(-width,width),my+randint(-width,width)))
-def colormasher(surface, s):
+def colormasher(surface, s, canvasRect):
     tries =0 #count number of time rectangle resized
     width =s
     while tries <10:
@@ -318,7 +248,7 @@ def colormasher(surface, s):
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #shapes
 
-def ellipse(surface, col,fill):
+def ellipse(surface, col,fill, canvasRect):
     screen.blit(surface,canvasRect)
     if perfect:  #perfect use circle
         if (abs(mx-startx)+abs(my-starty))//2> size:
@@ -332,7 +262,7 @@ def ellipse(surface, col,fill):
             draw.ellipse(screen,col,(min(mx,startx),min(my,starty),abs(mx-startx),abs(my-starty)),0)
    
 
-def rect(surface, col,fill):
+def rect(surface, col,fill, canvasRect):
     screen.blit(surface,canvasRect)
     if perfect:        
         draw.rect(screen,col,((startx),(starty),((mx-startx+my-starty)//2),((mx-startx+my-starty)//2)),size*fill)
@@ -341,10 +271,10 @@ def rect(surface, col,fill):
         
 def polygon(polylist,fill):    
     draw.polygon(screen,col,polylist,size*fill)
-def line(surface,col):
+def line(surface,col,canvasRect):
     screen.blit(surface,canvasRect)
     draw.line(screen,(col),((startx),(starty)),(mx,my), size)
-def aaline(surface,col):
+def aaline(surface,col,canvasRect):
     screen.blit(surface,canvasRect)
     draw.aaline(screen,(col),(startx,starty),(mx,my))
 
@@ -393,12 +323,10 @@ def clonestamp (cdx,cdy,sx,sy,size):
         screen.blit(cloned,(mx,my))   
 
 #Initialize text
-
-size=25
-text(screen,(255,0,0),"Back",22,160)
-text(screen,(0,255,0),"Next",107,160) 
-size =17
-#
+textTool = TextTool(screen)
+textTool.text((255,0,0),"Back",22,160, 25)
+textTool.text((0,255,0),"Next",107,160, 25) 
+size = 17
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 running =True
@@ -424,9 +352,12 @@ while running:
     keys = key.get_pressed()
     screen.set_clip()
     #set text to current color
-    drawText(screen, "Current Color", col, currentColorRect, font.SysFont("Comic Sans MS",20))
-    renderSizeRect(size) #fill rectangle depending on size
+    PaintLayout.drawText(screen, "Current Color", col, currentColorRect, 20)
+    renderSizeRect(size) # fill rectangle depending on size
     renderToolInfoText(mx,my,toolClass,tool)
+    draw.rect(screen,(255,255,255),palleteRect,0)
+    screen.blit(transform.scale(image.load(f"Resources/palette/Palette{curPallate}.png"), (145, 145)),palleteRect)
+
     #the hover effect ######
     if clearRect.collidepoint(mx,my): #clear box
         draw.rect(screen,(0,255,0),clearRect,1)
@@ -453,28 +384,14 @@ while running:
     if toolsClassName[toolClass] == 'shape':
         if keys[K_LSHIFT] or keys[K_RSHIFT] :
             perfect = True
-            #print("shift on")
         else :
             perfect = False
-            #print("shift off") 
     for e in event.get():
-        
         if e.type == QUIT:
             running = False
         if e.type==KEYDOWN:
             if tool == 'Text':# only text gets impacted by
-                if key.get_mods()& KMOD_CAPS and not key.get_mods()& KMOD_SHIFT and e.key >96 and e.key <123:              
-                    msg+=chr(e.key-32)
-                elif key.get_mods()& KMOD_SHIFT and not key.get_mods()& KMOD_CAPS and e.key >96 and e.key <123: 
-                    msg+=chr(e.key-32)
-                elif key.get_mods()& KMOD_SHIFT and e.key >47 and e.key<60: #handle shift on number 
-                    msg+=numshiftlist[e.key-48]
-                elif e.key==32: #handle space bar
-                    msg+=' '
-                elif e.key>32 and e.key<126: #normal case            
-                    msg+=chr(e.key)
-                elif e.key==8: #handle backspace
-                    msg=msg[:-1]
+                msg=textTool.handleKeystrokes(e,msg)
               
         if toolClass == 2 or toolClass ==1 : #for shape or brush class
             if(size>10):
@@ -488,7 +405,7 @@ while running:
                 copy = canvasSurface.copy()
                 
         if e.type == MOUSEBUTTONDOWN: 
-        #for somethings you want the event to be triggered as soon as mouse is clicked
+        #for something you want the event to be triggered as soon as mouse is clicked
             if e.button==1: #tool selection
                     print(str(mx) + "," + str(my))
                     for i in range(6):
@@ -533,11 +450,19 @@ while running:
                             saved = False # track if clone has been initiated
 
                     if menuRect[0].collidepoint(mx,my):
-                        openFile()
+                        openFile(screen, canvasRect)
+                    if menuRect[1].collidepoint(mx,my):
+                        saveFile(screen, canvasRect)
                     if clearRect.collidepoint(mx,my):
-                        clear()
+                        canvas.clear()
                     if palleteRect.collidepoint(mx,my):
-                        col = eyedrop()
+                        col = basicTool.eyedrop()
+                    if palleteNextRect.collidepoint(mx,my):
+                        curPallate+=1
+                        curPallate=min(curPallate, maxPallate)
+                    if palleteBackRect.collidepoint(mx,my):
+                        curPallate-=1
+                        curPallate = max(curPallate, 1)    
                     if tool == 'Text' or toolsClassName[toolClass] == 'shape' or toolsClassName[toolClass] == 'edit': 
                         cover.fill((255,255,255))
                         copy = canvasSurface.copy() 
@@ -554,7 +479,7 @@ while running:
                         polylist=[]
                     #text tool
                     if tool=='Text' and canvasRect.collidepoint(mx,my):
-                        text(screen,col,msg,mx,my)
+                        textTool.text(col,msg,mx,my,size)
                         msg = ''
                     #toggle setting
                     if tool == "Sticky_Surface":
@@ -599,9 +524,9 @@ while running:
                     time.wait(100)
 
                 if tool =='Fill_Bucket':
-                    fill((randint(0,255),randint(0,255),randint(0,255)))
+                    basicTool.fill((randint(0,255),randint(0,255),randint(0,255)))
                 if tool == 'Eraser':
-                    fill((255,255,255))
+                    basicTool.fill((255,255,255))
                     
                 if tool == "Stamp_Brush":
                     cspdx,cspdy=mx,my
@@ -653,25 +578,25 @@ while running:
         if mb[0]==1: #for some things it is better to track when the mouse is down
             #tools class
             if tool=='Pencil':
-                pencil(screen,col)
+                basicTool.pencil(col, (oldmx, oldmy))
             if tool == 'Eraser':
                 circlebrush(screen,x,y,(255,255,255),size)
             if tool =='Fill_Bucket':
-                fill(col)
+                basicTool.fill(col)
                 
             if tool == 'Eyedrop':
-                col = eyedrop()
+                col = basicTool.eyedrop()
             if tool == 'Smudge':
-                tonechanger(screen,1)
+                basicTool.tonechanger(1, canvasRect, size)
             #shape class
             if tool == "Circle_Shape":
-                 ellipse(copy, col,1)
+                ellipse(copy, col,1, canvasRect)
             if tool == "Square_Shape":
-                 rect(copy, col,1)
+                rect(copy, col,1, canvasRect)
             
 
             if tool == "Line_Shape":
-                 line(copy,col)
+                line(copy,col, canvasRect)
             if tool == "Explosion_Brush":
                 explosionbrush(screen,col,size)
             
@@ -723,11 +648,11 @@ while running:
         if mb[2]==1:
             #tool right click
             if tool=='Pencil':
-                pencil(screen,(randint(0,255),randint(0,255),randint(0,255)))
+                basicTool.pencil((randint(0,255),randint(0,255),randint(0,255)), (oldmx,oldmy))
             if(tool == 'Eyedrop'):
                 col = (randint(0,255),randint(0,255),randint(0,255))
             if tool == 'Smudge':
-                tonechanger(screen,-1)
+                basicTool.tonechanger(-1, canvasRect, size)
             #shapes right click
             if tool == "Circle_Shape":
                  ellipse(copy, col,0)
@@ -763,7 +688,7 @@ while running:
     oldmx,oldmy,=mx,my 
     if tool=='Text' and canvasRect.collidepoint(mx,my):
         copy = canvasSurface.copy() 
-        text(screen,col,msg,mx,my)          
+        textTool.text(col,msg,mx,my,size)          
       
     display.flip()
 quit()
