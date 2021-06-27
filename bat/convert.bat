@@ -1,6 +1,6 @@
 @echo off
 Setlocal enabledelayedexpansion
-
+rem Replace spaces with underscores
 Set "Pattern= "
 Set "Replace=_"
 

@@ -71,7 +71,7 @@ while running:
                print("stampCategory: " + categoryNames[stampCategory] +"\n Character Name : " + stampname +"\n")
                if nextrect.collidepoint(mx,my)==True:
                    if stampCategory <24:
-                       stampCategory+=1 #make new and oldcategory variable later new catergory gets added
+                       stampCategory+=1 #make new and oldcategory variable later new category gets added
                        
                if prevrect.collidepoint(mx,my)==True:
                     if stampCategory >0:

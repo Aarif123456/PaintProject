@@ -41,9 +41,6 @@ while running:
             cspdx,cspdy=mx,my
             first=True
             saved = True
-            
-              
-                
                            
     oldmx,oldmy,=mx,my
     display.flip()
