@@ -1,5 +1,6 @@
+# Abdullah Arif
+# Trail brush that fades
 
-#Abdullah
 from pygame import *
 from random import*
 from math import*
