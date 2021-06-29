@@ -1,7 +1,7 @@
 from pygame import *
 
 class TextTool(object):
-    numShiftList=[')','!','@','#','$','%','^','&','*','(']
+    numShiftList=[")","!","@","#","$","%","^","&","*","("]
     def __init__(self, surface, fontFace="Comic Sans MS"):
         super(TextTool, self).__init__()
         font.init()
@@ -23,7 +23,7 @@ class TextTool(object):
             msg+=TextTool.numShiftList[e.key-48]
         # handle space bar
         elif e.key==32: 
-            msg+=' '
+            msg+=" "
         # normal case    
         elif e.key>32 and e.key<126:         
             msg+=chr(e.key)
