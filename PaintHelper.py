@@ -1,0 +1,7 @@
+from pygame import *
+
+def addImage(screen, imageSize, rect, location):
+    screen.blit(transform.smoothscale(image.load(location), imageSize),rect)
+
+def addImageNonSmooth(screen, imageSize, rect, location):
+    screen.blit(transform.scale(image.load(location), imageSize),rect)
