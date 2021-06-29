@@ -26,11 +26,11 @@ prevrect=Rect(1200-100,320,100,100)
 draw.rect(screen,(255,0,255),prevrect)
 
 #get name of each category of pirates
-categoryNames=open('names.txt','r').read().splitlines()
+categoryNames=open("names.txt","r").read().splitlines()
 
 for c in range (25):#to get all stamps
   if c<10:
-    categoryFolderPath = '0'+ str(c)
+    categoryFolderPath = "0"+ str(c)
   else:
     categoryFolderPath=str(c)
   #all spaces are represented as underscore on folders and files
@@ -41,20 +41,20 @@ for c in range (25):#to get all stamps
 
   stampimage =[] #list to hold all the stamps
   for file in listdir:
-    if file.endswith('.png'):#get only the picture
-      stampimage.append(image.load(categoryFolderPath+'/'+file))
+    if file.endswith(".png"):#get only the picture
+      stampimage.append(image.load(categoryFolderPath+"/"+file))
   stampImages[categoryNames[c]] = stampimage #store images in dictionary
 
   #get name of each character and store into list
-  stampname=open(categoryFolderPath + '/names.txt','r').read().splitlines()
+  stampname=open(categoryFolderPath + "/names.txt","r").read().splitlines()
   stampnames.append(stampname)
 
      
-'''for i in range(len(stampimages)):#loading screen
+"""for i in range(len(stampimages)):#loading screen
     draw.rect(screen,(0,0,0),(0,0,200,380))
     screen.blit(stampimages[i],(0,0))
     time.wait(500)
-    display.flip()'''
+    display.flip()"""
 
 
 #stampcopy=transform.smoothscale#make all stamps = ratio maybe like a square or something or keep all stamp ratio same using python
