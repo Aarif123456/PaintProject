@@ -15,13 +15,12 @@ while running:
             running = False        
     mx,my=mouse.get_pos()
     mb=mouse.get_pressed()
-    if mb[0]==1:
-        trials.append((mx,my))
-        cols.append(Color(randint(0,255),randint(0,255),randint(0,255)))
-        print(cols)
-        '''col.r=randint(0,255)
-        col.g=randint(0,255)
-        col.b=randint(0,255)'''
+    trials.append((mx,my))
+    cols.append(Color(randint(0,255),randint(0,255),randint(0,255)))
+    print(cols)
+    """col.r=randint(0,255)
+    col.g=randint(0,255)
+    col.b=randint(0,255)"""
 
     for col in cols:
         if col.r!=drawcol.r:
@@ -50,10 +49,10 @@ while running:
 
 
 quit()
-''' if mb[2]==1:
+""" if mb[2]==1:
         trials[2]=randint(0,255)
         trials[3]=randint(0,255)
-        trials[4]=randint(0,255)'''
+        trials[4]=randint(0,255)"""
 """ if I wanna to get clear screen
             screen.fill((0,0,0))
             trials=[]"""
