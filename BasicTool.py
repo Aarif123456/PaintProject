@@ -4,17 +4,17 @@ class BasicTool(object):
     def __init__(self, surface):
         super(BasicTool, self).__init__()
         self.surface = surface
-
-    def pencil(self,col:Color, old:tuple):
+        
+    def pencil(self, col:Color, old:tuple):
         mx,my=mouse.get_pos()
         oldmx,oldmy=old
         draw.line(self.surface,(col),(oldmx,oldmy),(mx,my),3)    
 
-    def fill(self,col:Color):
+    def fill(self, col:Color):
         mx,my=mouse.get_pos()
         fillpos=[(mx,my)]
         oldcol=self.surface.get_at((mx,my))
-        if oldcol!=col:
+        if oldcol != col:
             while len(fillpos)>0:
                 while len(fillpos)>0:
                     x,y = fillpos.pop()
@@ -26,7 +26,7 @@ class BasicTool(object):
         mx,my=mouse.get_pos()
         return self.surface.get_at((mx,my))
 
-    def tonechanger(self, tone,canvasRect,size):
+    def tonechanger(self, tone, canvasRect, size):
         x,y = mx,my=mouse.get_pos()
         s = min(10,size)
         for i in range(-s*3,s*3):

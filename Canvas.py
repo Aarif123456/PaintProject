@@ -1,7 +1,7 @@
 from pygame import *
 from tkinter import Tk, filedialog
 from PaintHelper import addImage 
-
+from Hover import Hover
 
 class Canvas(object):
     def __init__(self, surface, rect):
@@ -50,3 +50,14 @@ class Canvas(object):
         file = filedialog.asksaveasfile(mode="w", title = "Save As",defaultextension = ".png")
         if file != None:
             image.save(self.surface.subsurface(self.rect), file.name)
+
+    def createClearBox(self, backgroundCol):
+        self.clearRect = Rect(700,485,40,40)
+        draw.rect(self.surface,backgroundCol,self.clearRect,0)
+        Hover.addHover(self.clearRect)
+        addImage(self.surface, (40, 40), self.clearRect, "Resources/design/menubar/clear.png")
+
+    def checkClear(self):
+        mx,my=mouse.get_pos()
+        if self.clearRect.collidepoint(mx,my):
+            self.clear()
