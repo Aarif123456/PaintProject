@@ -16,6 +16,7 @@ from BrushHandler import BrushHandler
 from HighlighterHandler import HighlighterHandler
 from Stamp import Stamp
 from Background import Background
+from MusicBox import MusicBox
 
 #-------------------------------------------------------------------------
 backgroundCol = Color(255,255,255)
@@ -127,21 +128,9 @@ stamp.setup()
 background = Background(screen, canvasRect, backgroundCol)
 background.setup()
 
-#music box
-musicNameRect = Rect(810,10,180,25)
-draw.rect(screen,(0,0,0),musicNameRect ,1)
-#play stop box 
-musicPlayRect = Rect(815,36,84,43)
-musicStopRect = Rect(900,36,84,43)
-Hover.addHover(musicPlayRect)
-Hover.addHover(musicStopRect)
-
-#next back 
-musicNextRect = Rect(900,80,84,25)
-musicBackRect = Rect(815,80,84,25)
-PaintLayout.createNextBox(screen, musicNextRect)
-PaintLayout.createBackBox(screen, musicBackRect)
-
+# music box
+musicBox = MusicBox(screen)
+musicBox.setup()
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
 basicTool = BasicTool(screen)
 brush = Brush(screen)
@@ -157,9 +146,6 @@ cloneStamp = CloneStamp(screen)
 
 #Initialize text
 textTool = TextTool(screen)
-# TODO: REMOVE
-# textTool.text((255,0,0),"Back",22,160, 25)
-# textTool.text((0,255,0),"Next",107,160, 25) 
 
 #-------------------------------------------------------------------------------------
 running = True
@@ -264,6 +250,7 @@ while running:
                 palette.checkPalette(col)
                 tool = stamp.handle(tool)
                 background.handle()
+                musicBox.handle()
                 # text tool
                 if tool == "Text":
                     textTool.text(col,msg,mx,my,size)

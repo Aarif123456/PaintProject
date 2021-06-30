@@ -36,14 +36,14 @@ class Stamp(object):
 
 
     def setup(self):
-        listdir=[] #hold files in folder
-        for c in range (Stamp.MAX_STAMPS):#to get all stamps
+        listdir=[] # hold files in folder
+        for c in range (Stamp.MAX_STAMPS): # to get all stamps
             categoryFolderPath = "Resources/stamps/"
             if c<10:
                 categoryFolderPath += "0"+ str(c)
             else:
                 categoryFolderPath += str(c)
-            #all spaces are represented as underscore on folders and files
+            # all spaces are represented as underscore on folders and files
             categoryFolderPath += "_" +self.categoryNames[c].replace(" ", "_")
             # search for files in stampCategory folder
             listdir = os.listdir(categoryFolderPath) 
@@ -53,9 +53,10 @@ class Stamp(object):
             for file in listdir:
                 if file.endswith(".png"):#g et only the picture
                     stampImage.append(image.load(f"{categoryFolderPath}/{file}"))
-            self.stampImages[self.categoryNames[c]] = stampImage #store images in dictionary
+            # store images in dictionary
+            self.stampImages[self.categoryNames[c]] = stampImage 
 
-            #get name of each character and store into list
+            # get name of each character and store into list
             stampName=open(categoryFolderPath + "/names.txt","r").read().splitlines()
             self.stampNames.append(stampName)
 

@@ -44,7 +44,7 @@ class Background(object):
         files = os.listdir(location) 
         files.sort() # because listdir does not guarantee order
         for file in files:
-            if file.endswith(".png"):#g et only the picture
+            if file.endswith(".png"):# get only the picture
                 name = Background.NAME_FINDER.match(file).group('fileName').replace("_", " ")
                 images.append((image.load(f"{location}/{file}"), name))
 
