@@ -1,28 +1,31 @@
 from pygame import *
+
 from Hover import Hover
 
+
 class PaintLayout(object):
-    def __init__(self, screenWidth = 1024, screenHeight = 720):
+    def __init__(self, screenWidth=1024, screenHeight=720):
         super(PaintLayout, self).__init__()
-        self.screenWidth=screenWidth
-        self.screenHeight=screenHeight
-        self.screen = display.set_mode((screenWidth,screenHeight ))
-        self.screen.blit(image.load("Resources/design/others/background.png"),(0,0))
+        self.screenWidth = screenWidth
+        self.screenHeight = screenHeight
+        self.screen = display.set_mode((screenWidth, screenHeight))
+        self.screen.blit(image.load("Resources/design/others/background.png"), (0, 0))
 
         # Surface used to give highlight effect
-        self.cover = Surface((screenWidth,screenHeight)).convert() # make blank Surface
+        self.cover = Surface((screenWidth, screenHeight)).convert()  # make blank Surface
         self.cover.set_alpha(255)
-        self.cover.set_colorkey((255,255,255))
-        
-    def createLogo(self, logoLocation):
-        self.screen.blit(image.load(logoLocation),(self.screenWidth/2-146,0))
+        self.cover.set_colorkey((255, 255, 255))
 
-    #text renderer from https://www.pygame.org/wiki/TextWrap
+    def createLogo(self, logoLocation):
+        self.screen.blit(image.load(logoLocation), (self.screenWidth / 2 - 146, 0))
+
+    # text renderer from https://www.pygame.org/wiki/TextWrap
+    @staticmethod
     def drawText(screen, text, color, rect, fontSize, fontFace="Comic Sans MS", aa=False, bkg=None):
         font.init()
-        curFont = font.SysFont(fontFace,fontSize)
+        curFont = font.SysFont(fontFace, fontSize)
         rect = Rect(rect)
-        draw.rect(screen, (255,255,255),rect, 0)
+        draw.rect(screen, (255, 255, 255), rect, 0)
         y = rect.top
         lineSpacing = -2
 
@@ -38,7 +41,7 @@ class PaintLayout(object):
             while curFont.size(text[:i])[0] < rect.width and i < len(text):
                 i += 1
             # if we've wrapped the text, then adjust the wrap to the last word      
-            if i < len(text): 
+            if i < len(text):
                 i = text.rfind(" ", 0, i) + 1
             # render the line and blit it to the surface
             if bkg:
@@ -52,12 +55,13 @@ class PaintLayout(object):
             text = text[i:]
 
         return text
-    
+
+    @staticmethod
     def createNextBox(screen, rect, size=25):
         Hover.addHover(rect)
-        PaintLayout.drawText(screen, "Next", (0,255,0), rect, 25)
+        PaintLayout.drawText(screen, "Next", (0, 255, 0), rect, size)
 
+    @staticmethod
     def createBackBox(screen, rect, size=25):
         Hover.addHover(rect)
-        PaintLayout.drawText(screen, "Back", (255,0,0), rect, 25)
-        
+        PaintLayout.drawText(screen, "Back", (255, 0, 0), rect, size)
