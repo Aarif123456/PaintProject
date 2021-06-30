@@ -2,6 +2,9 @@
 
 This is a simple paint program like MS Paint but with a little more style. This version of the paint project is themed after the anime One Piece. 
 
+## Quick start
+    Run paint.py to get started
+
 ## Note
 
 Bear in mind, I made this project in grade 11. So, even though I tried to refactor it, a lot of the code is still hacky and messy. 
@@ -75,9 +78,4 @@ Bear in mind, I made this project in grade 11. So, even though I tried to refact
     - Different cursor to help you know what tool is active 
 
 ## TODO
-- Background
-- Make info box class- Color, size 
 - Cursor
-- Make Tool handle in one class 
-    - Depending on the class the handle function will be different -like different things will happen on right click, left click, mouse scroll or key-down....
-- Make music box class
