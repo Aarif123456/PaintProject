@@ -4,7 +4,7 @@ class BasicTool(object):
     def __init__(self, surface):
         super(BasicTool, self).__init__()
         self.surface = surface
-        
+
     def pencil(self, col:Color, old:tuple):
         mx,my=mouse.get_pos()
         oldmx,oldmy=old
@@ -23,8 +23,8 @@ class BasicTool(object):
                         fillpos+=[(x+1,y), (x-1,y),(x,y+1),(x,y-1)]
 
     def eyedrop(self):
-        mx,my=mouse.get_pos()
-        return self.surface.get_at((mx,my))
+        mPos=mouse.get_pos()
+        return tuple(self.surface.get_at(mPos))
 
     def tonechanger(self, tone, canvasRect, size):
         x,y = mx,my=mouse.get_pos()

@@ -19,6 +19,6 @@ class BrushHandler(object):
                 if tool == "Explosion_Brush":
                     self.brush.explosion(col,size)    
             # right click held down
-            if mb[2] == 1:
+            elif mb[2] == 1:
                 if tool == "Explosion_Brush":
                     self.brush.explosion(createRandomColor(),size)

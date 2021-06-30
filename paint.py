@@ -9,14 +9,17 @@ from Shapes import Shapes
 from Spray import Spray
 from Hover import Hover
 from Toolbar import Toolbar
+from Palette import Palette
 from CloneStamp import CloneStamp
 from BasicToolHandler import BasicToolHandler
 from BrushHandler import BrushHandler
+from HighlighterHandler import HighlighterHandler
+from Stamp import Stamp
 
 #-------------------------------------------------------------------------
 backgroundCol = Color(255,255,255)
 # Current color - start off with random color
-col = createRandomColor()
+col = Color(createRandomColor())
 paintLayout = PaintLayout()
 screen,cover = paintLayout.screen,paintLayout.cover
 
@@ -97,12 +100,7 @@ def renderToolInfoText(x,y,toolClassNum,toolName):
     PaintLayout.drawText(screen,toolText, (0,255,0), toolBoxTextRect, 25)
 
 # palette box
-palleteRect = Rect(412,540,145,145)
-palleteBackRect = Rect(412,686,72,30)
-palleteNextRect = Rect(412+73,686,72,30)
-Hover.addHover(palleteBackRect)
-Hover.addHover(palleteNextRect)
-draw.rect(screen,(0,0,0),palleteRect,1)
+palette = Palette(screen, backgroundCol)
 
 # color value
 currentColorRect = Rect(30,646,160,30)  # Text says current color written in current color
@@ -119,24 +117,8 @@ def renderSizeRect(size):
 
 #stamp box
 #770 end of canvas x
-stampCategoryTextRect = Rect(816,349,163,30)
-stampCategoryBackRect = Rect(780,349,35,30)
-stampCategoryNextRect = Rect(980,349,35,30)
-Hover.addHover(stampCategoryBackRect)
-Hover.addHover(stampCategoryNextRect)
-draw.rect(screen,(0,0,0),stampCategoryTextRect ,1)
-
-stampTextRect = Rect(816,380,163,30)
-stampBackRect = Rect(780,380,35,30)
-stampNextRect = Rect(980,380,35,30)
-Hover.addHover(stampBackRect)
-Hover.addHover(stampNextRect)
-draw.rect(screen,(0,0,0),stampTextRect ,1)
-
-# rect has to be i box 200:300
-# 120-480 -canvas y range
-stampRect = Rect(797,411,200,300) 
-draw.rect(screen,(0,0,0),stampRect ,1)
+stamp = Stamp(screen, canvasRect, backgroundCol)
+stamp.setup()
 
 #background box
 # the actual background has to be in rect with ratio 17:12
@@ -171,10 +153,6 @@ musicNextRect = Rect(900,80,84,25)
 Hover.addHover(musicBackRect)
 Hover.addHover(musicNextRect)
 
-maxPallate = 5
-curPallate = 1
-    
-
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
 basicTool = BasicTool(screen)
 brush = Brush(screen)
@@ -204,14 +182,13 @@ canvasSurface=screen.subsurface(canvasRect)
 copy = canvasSurface.copy() # store copy of canvas need for some tools
 cropselected = canvasSurface
 
-alpha = False
 perfect = False
 startx,starty = 0,0
 polylist = []
 msg=""        
 basicToolHandler = BasicToolHandler(backgroundCol, canvasRect, basicTool)
 brushHandler = BrushHandler(backgroundCol, canvasRect, brush)
-
+highlighterHandler = HighlighterHandler(cover, canvasRect, highlighter)
 while running:
     mx,my = mouse.get_pos()
     mb = mouse.get_pressed()
@@ -221,8 +198,9 @@ while running:
     PaintLayout.drawText(screen, "Current Color", col, currentColorRect, 20)
     renderSizeRect(size) # fill rectangle depending on size
     renderToolInfoText(mx,my,toolClass,tool)
-    draw.rect(screen,backgroundCol,palleteRect,0)
-    screen.blit(transform.scale(image.load(f"Resources/palette/Palette{curPallate}.png"), (145, 145)),palleteRect)
+    palette.renderPalette()
+    stamp.renderImage()
+    stamp.renderText()
     # the hover effect ######
     hover.createHover()
     screen.set_clip(canvasRect)
@@ -231,18 +209,18 @@ while running:
     events = event.get()
     basicToolHandler.handle(tool, col, size, copy, events)
     brushHandler.handle(tool, col, size, copy, events)
+    highlighterHandler.handle(tool, col, size, copy, events)
+    if toolClass == 2 or toolClass == 1 : # for shape or brush class
+        size = min(size, 10)
 
     for e in events:
         if e.type == QUIT:
             running = False
-        
-        if e.type==KEYDOWN:
+        elif e.type == KEYDOWN:
             if tool == "Text":# only text gets impacted by
                 msg=textTool.handleKeystrokes(e,msg)      
-        if toolClass == 2 or toolClass == 1 : # for shape or brush class
-            size = min(size, 10)
 
-        if e.type == MOUSEBUTTONUP:
+        elif e.type == MOUSEBUTTONUP:
             if toolsClassName[toolClass] == "edit" and e.button == 3:
                 copy = canvasSurface.copy()     
             # for shape or brush class 
@@ -250,7 +228,7 @@ while running:
                 cover.fill(backgroundCol)
                 copy = canvasSurface.copy()
 
-        if e.type == MOUSEBUTTONDOWN: 
+        elif e.type == MOUSEBUTTONDOWN: 
             if canvasRect.collidepoint(mx,my):
                 canvas.canvasChanged()
         # for something you want the event to be triggered as soon as mouse is clicked
@@ -269,7 +247,6 @@ while running:
                     toolClass = max (0,toolClass-1)
                     tool = toolsName[toolClass][0]
                     #with the rest of the rendering make it green if selected or hover
-
                     screen.set_clip()  #unlock screen
                     renderToolbox(toolClass) #redraw selection
                     draw.rect(screen,(0,255,0),toolBoxRect[0],2)
@@ -279,15 +256,13 @@ while running:
                         cloneStamp.reset()
                         
                     
-                if toolBoxClassNextRect.collidepoint(mx,my): #for next tool class
+                elif toolBoxClassNextRect.collidepoint(mx,my): #for next tool class
                     if toolsClassName[toolClass] == "edit":
                         screen.blit(copy,(canvasRect))
-                    toolClass += 1 
-                    toolClass = min(len(toolsName)-1,toolClass)
+                    toolClass = min(len(toolsName)-1,toolClass+1)
                     tool = toolsName[toolClass][0]
-
-                    screen.set_clip()  #unlock screen
-                    renderToolbox(toolClass) #redraw selection
+                    screen.set_clip()  # unlock screen
+                    renderToolbox(toolClass) # redraw selection
                     draw.rect(screen,(0,255,0),toolBoxRect[0],2)
                     tool = toolsName[toolClass][0]
                     screen.set_clip(canvasRect)
@@ -296,18 +271,13 @@ while running:
 
                 toolbar.checkToolbar()
                 canvas.checkClear()
-                if palleteRect.collidepoint(mx,my):
-                    col = basicTool.eyedrop()
-                if palleteNextRect.collidepoint(mx,my):
-                    curPallate += 1
-                    curPallate = min(curPallate, maxPallate)
-                if palleteBackRect.collidepoint(mx,my):
-                    curPallate -= 1
-                    curPallate = max(curPallate, 1) 
+                palette.checkPalette(col)
+                stamp.handle()
                 # text tool
                 if tool == "Text":
                     textTool.text(col,msg,mx,my,size)
-                    msg = ""    
+                    msg = ""
+
                 # TODO: Create filler and add tool and classes that cause fill
                 if tool == "Text" or toolClass == 1 or toolsClassName[toolClass] == "edit": 
                     cover.fill(backgroundCol)
@@ -320,30 +290,18 @@ while running:
                     if tool == "Polygon_Shape" or tool == "Polygon_Shape_Filled":
                         draw.circle(screen,(0,0,0),(mx,my),1)
                         polylist.append((mx,my))
-                    if tool!="Polygon_Shape" and tool != "Polygon_Shape_Filled":
+                    elif tool != "Polygon_Shape" and tool != "Polygon_Shape_Filled":
                         polylist=[]
                     #toggle setting
-                    if tool == "Sticky_Surface":
-                        highlighter.toggleSticky()
-                        print (highlighter.sticky)
-                    if tool == "alpha":
-                        alpha = not alpha
-                        cover.set_alpha(255 if alpha else 55)
-                        print(alpha)
                     if tool == "Spray_design":
-                        if spraydesign==1:
-                            spraydesign = 2
-                            time.wait(10)
-                        else:
-                            spraydesign = 1
-                            time.wait(10)
-                    
+                        spraydesign = 2 if spraydesign == 1 else 1
+                        time.wait(10)
                     
             if e.button == 4:
                 size = min(20, size +1)
-            if e.button == 5:
+            elif e.button == 5:
                size = max(1, size -1)              
-            if e.button == 3 and e.button != 4 and e.button != 5:
+            elif e.button == 3:
                 startx,starty = e.pos
                 if len(polylist) > 2:
                     if tool == "Polygon_Shape":
@@ -360,35 +318,35 @@ while running:
                 if tool == "Stamp_Brush":
                     cloneStamp.save()
 
-                if tool=="Move":
+                elif tool=="Move":
                     screen.blit(copy,(canvasRect))  
                     draw.rect(screen,backgroundCol,(croprect))                          
                     screen.blit(cropselected,(mx-cx/2,my-cy/2))
                     croprect=Rect(mx-cx/2,my-cy/2,cx,cy)                                           
                     
-                if tool=="Copy":
+                elif tool=="Copy":
                     screen.blit(copy,(canvasRect))
                     screen.blit(cropselected,(mx-cx/2,my-cy/2))
                     
-                if tool=="Crop":
+                elif tool=="Crop":
                     screen.blit(copy,(canvasRect))
                     draw.rect(screen,backgroundCol,canvasRect)
                     screen.blit(cropselected,(croprect))
                     copy = canvasSurface.copy()
                                
-                if tool=="Rotate":
+                elif tool=="Rotate":
                     screen.blit(copy,(canvasRect))  
                     draw.rect(screen,backgroundCol,(croprect))
                     cropselected=transform.rotate(cropselected,90)
                     screen.blit(cropselected,(croprect))   
                    
-                if tool =="Flip_Vertical":
+                elif tool =="Flip_Vertical":
                     screen.blit(copy,(canvasRect))  
                     draw.rect(screen,backgroundCol,(croprect))
                     cropselected=transform.flip(cropselected, False, True)
                     screen.blit(cropselected,(croprect))   
                     
-                if tool =="Flip_Horizontal":
+                elif tool =="Flip_Horizontal":
                     screen.blit(copy,(canvasRect))  
                     draw.rect(screen,backgroundCol,(croprect))
                     cropselected=transform.flip(cropselected, True, False)
@@ -400,12 +358,9 @@ while running:
     if canvasRect.collidepoint(mx,my):
         # for some things it is better to track when the mouse is down
         if mb[0] == 1: 
-            # tools 
-            if tool == "Eyedrop":
-                col = basicTool.eyedrop()
 
             # shapes
-            elif tool == "Circle_Shape":
+            if tool == "Circle_Shape":
                 shapes.ellipse(copy, col, 1, canvasRect,(mx,my,startx,starty), perfect, size)
             elif tool == "Square_Shape":
                 shapes.rect(copy, col, 1, canvasRect, (mx,my,startx,starty), perfect, size)
@@ -413,20 +368,14 @@ while running:
                 shapes.line(copy, col, canvasRect, (mx,my,startx,starty), size)
             
             # brushes
-            elif tool == "Circle_Brush":
-                highlighter.circle(col,size)
-            elif tool == "Square_Brush":
-                highlighter.rect(col,size)
-            elif tool == "Color_Masher":
+            if tool == "Color_Masher":
                 brush.colormasher(size*5,canvasRect)
                 copy = canvasSurface.copy()
-            elif tool == "Line_Brush":
-                highlighter.line((oldmx,oldmy),col,size) 
-
-            # for highlighter blit copy          
+            # for highlighter blit copy
             if toolClass == 2 : 
                 screen.blit(copy,canvasRect)
                 screen.blit(cover,(0,0))      
+           
                 
             # sprays
             if tool == "Stamp_Brush":
@@ -453,26 +402,16 @@ while running:
                 
         # right click held down
         if mb[2] == 1:
-            if(tool == "Eyedrop"):
-                col = createRandomColor()
             # shapes right click
-            elif tool == "Circle_Shape":
+            if tool == "Circle_Shape":
                 shapes.ellipse(copy, col,0, canvasRect, (mx,my,startx,starty), perfect, size)
             elif tool == "Square_Shape":
                 shapes.rect(copy, col, 0, canvasRect, (mx,my,startx,starty), perfect, size)
             elif tool == "Line_Shape":
                 shapes.aaline(copy,col,canvasRect, (mx,my,startx,starty))
-            # brush right click
-            elif tool == "Circle_Brush":
-                highlighter.circle(createRandomColor(),size)
-            elif tool == "Square_Brush":
-                highlighter.rect(createRandomColor(),size)
-            elif tool == "Line_Brush":
-                highlighter.line((oldmx,oldmy),createRandomColor(),size) 
             if toolClass == 2  : # for brushes blit copy
                 screen.blit(copy,canvasRect)
                 screen.blit(cover,(0,0))
-            
             # spray class
             if tool == "Circle":
                 spray.sprayCircle(1,spraySpeed,size,spraydesign,createRandomColor())
@@ -480,7 +419,6 @@ while running:
                 spray.spraySquare (1,spraySpeed,size,spraydesign,createRandomColor())
             elif tool == "Rain":
                 spray.rainSquare(1,spraySpeed,size,spraydesign,createRandomColor())
-           
             elif tool == "Spray_speed":
                spraySpeed=max(speed-1,1)            
                        
@@ -489,5 +427,5 @@ while running:
         copy = canvasSurface.copy() 
         textTool.text(col,msg,mx,my,size)          
       
-    display.flip()
+    display.update()
 quit()

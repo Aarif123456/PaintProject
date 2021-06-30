@@ -18,6 +18,7 @@ class PaintLayout(object):
 
     #text renderer from https://www.pygame.org/wiki/TextWrap
     def drawText(screen, text, color, rect, fontSize, fontFace="Comic Sans MS", aa=False, bkg=None):
+        font.init()
         curFont = font.SysFont(fontFace,fontSize)
         rect = Rect(rect)
         y = rect.top

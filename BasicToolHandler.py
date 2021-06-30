@@ -23,7 +23,8 @@ class BasicToolHandler(object):
                             self.basicTool.fill(self.backgroundCol)
                         elif tool == "Fill_Bucket":
                             self.basicTool.fill(createRandomColor())
-
+                        elif(tool == "Eyedrop"):
+                            col.r,col.g,col.b = createRandomColor()  
         if onCanvas:
             if mb[0] == 1: # Mouse left-click currently down
                 if tool == "Pencil":
@@ -32,11 +33,14 @@ class BasicToolHandler(object):
                     self.basicTool.fill(col)
                 elif tool == "Smudge":
                     self.basicTool.tonechanger(1, self.canvasRect, size)
+                elif tool == "Eyedrop":
+                    col.r,col.g,col.b,col.a = self.basicTool.eyedrop()
             # right click held down
-            if mb[2] == 1:
+            elif mb[2] == 1:
                 if tool == "Pencil":
                     self.basicTool.pencil(createRandomColor(), (oldmx,oldmy))
                 elif tool == "Smudge":
-                    self.basicTool.tonechanger(-1, self.canvasRect, size)   
+                    self.basicTool.tonechanger(-1, self.canvasRect, size) 
+                
         self.old = mx,my
         
