@@ -9,6 +9,11 @@ This is a simple paint program like MS Paint but with a little more style. This 
 
 Bear in mind, I made this project in grade 11. So, even though I tried to refactor it, a lot of the code is still hacky and messy. 
 
+## Screenshot
+![Screenshot 1](https://i.imgur.com/nz3U41x.png)
+![Screenshot 2](https://i.imgur.com/tSpnO8E.png)
+![Screenshot 3](https://i.imgur.com/DUakDE2.png)
+
 ## Implemented features
 1. Toolbar
     - Open image
