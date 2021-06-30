@@ -71,18 +71,13 @@ Bear in mind, I made this project in grade 11. So, even though I tried to refact
     - Choose music
     - Play or pause as you like 
 
-8. Multiple Canvas
-    - Each with undo and redo list
-    - Delete Canvas
-    - Go though Canvas
+8. Cursor
+    - Different cursor to help you know what tool is active 
 
 ## TODO
-- Make tools work with the same arguments
-- Make Tools class handle in one class
+- Background
+- Make info box class- Color, size 
+- Cursor
 - Make Tool handle in one class 
     - Depending on the class the handle function will be different -like different things will happen on right click, left click, mouse scroll or key-down....
-- Make info box class
-- Make Palette class
-- Make stamps class
-- Make back ground class
 - Make music box class

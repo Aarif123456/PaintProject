@@ -1,4 +1,5 @@
 from pygame import *
+from Hover import Hover
 
 class PaintLayout(object):
     def __init__(self, screenWidth = 1024, screenHeight = 720):
@@ -21,6 +22,7 @@ class PaintLayout(object):
         font.init()
         curFont = font.SysFont(fontFace,fontSize)
         rect = Rect(rect)
+        draw.rect(screen, (255,255,255),rect, 0)
         y = rect.top
         lineSpacing = -2
 
@@ -50,3 +52,12 @@ class PaintLayout(object):
             text = text[i:]
 
         return text
+    
+    def createNextBox(screen, rect, size=25):
+        Hover.addHover(rect)
+        PaintLayout.drawText(screen, "Next", (0,255,0), rect, 25)
+
+    def createBackBox(screen, rect, size=25):
+        Hover.addHover(rect)
+        PaintLayout.drawText(screen, "Back", (255,0,0), rect, 25)
+        

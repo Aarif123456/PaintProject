@@ -1,7 +1,6 @@
 from pygame import *
 from PaintHelper import addImage 
 from PaintLayout import PaintLayout
-from Hover import Hover
 
 class Palette(object):
     maxPalette = 5
@@ -11,13 +10,11 @@ class Palette(object):
         self.surface = surface
         self.backgroundCol = backgroundCol
         self.paletteRect = Rect(412,540,145,145)
-        self.paletteBackRect = Rect(412,686,72,30)
         self.paletteNextRect = Rect(412+73,686,72,30)
-        Hover.addHover(self.paletteBackRect)
-        Hover.addHover(self.paletteNextRect)
+        self.paletteBackRect = Rect(412,686,72,30)
         draw.rect(surface,(0,0,0),self.paletteRect,1)
-        PaintLayout.drawText(surface, "Back", (255,0,0), self.paletteBackRect, 25)
-        PaintLayout.drawText(surface, "Next", (0,255,0), self.paletteNextRect, 25)
+        PaintLayout.createNextBox(surface, self.paletteNextRect)
+        PaintLayout.createBackBox(surface, self.paletteBackRect)
         self.curPalette = 1
 
     def renderPalette(self):

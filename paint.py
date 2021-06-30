@@ -15,6 +15,7 @@ from BasicToolHandler import BasicToolHandler
 from BrushHandler import BrushHandler
 from HighlighterHandler import HighlighterHandler
 from Stamp import Stamp
+from Background import Background
 
 #-------------------------------------------------------------------------
 backgroundCol = Color(255,255,255)
@@ -45,20 +46,20 @@ toolBoxClassTextRect = Rect(10,120,168,40) # hold text that says tool box class
 toolBoxClassBackRect = Rect(10,160,84,40)  # hold next arrow
 toolBoxClassNextRect = Rect(95,160,84,40)  # hold next arrow
 draw.rect(screen,backgroundCol,toolBoxClassTextRect,0)
-Hover.addHover(toolBoxClassBackRect)
-Hover.addHover(toolBoxClassNextRect)
-
+PaintLayout.createNextBox(screen, toolBoxClassNextRect)
+PaintLayout.createBackBox(screen, toolBoxClassBackRect)
 
 #--------------set up toolbox------------
 
 toolBoxPath = "Resources/tools/" # path for all types of tools
 # types of tools for display
-toolsClassName = ["tools","shape","brush","spray","edit"] 
+toolsClassName = ["tools","shape","brush","spray","edit", "other"] 
 toolsName=  [["Pencil","Eraser","Fill_Bucket","Text","Eyedrop","Smudge"],
              ["Circle_Shape","Square_Shape","Line_Shape","Explosion_Brush","Polygon_Shape","Polygon_Shape_Filled"],
              ["Circle_Brush","Square_Brush","Color_Masher","Line_Brush","Sticky_Surface","alpha"],
              ["Circle","Square","Rain","Stamp_Brush","Spray_design","Spray_speed"],
-             ["Move","Copy","Crop","Rotate","Flip_Vertical","Flip_Horizontal"]
+             ["Move","Copy","Crop","Rotate","Flip_Vertical","Flip_Horizontal"],
+             ["Stamp"]
             ]
 
 toolBoxRect =[]
@@ -87,14 +88,16 @@ def renderToolInfoText(x,y,toolClassNum,toolName):
     toolboxTextInfoOutlineRect = Rect(5,505,185,140)
     draw.rect(screen,backgroundCol,toolboxTextInfoOutlineRect) 
     draw.rect(screen,(0,0,0),toolboxTextInfoOutlineRect,1)
+    if toolName == "Stamp":
+        toolClassNum = 5
     curTool = toolsName[toolClassNum].index(toolName)
 
-    for i in range(6):
+    for i in range(len(toolsName[toolClassNum])):
         if toolBoxRect[i].collidepoint(x,y):
             curTool = i
             break
 
-    PaintLayout.drawText(screen, open(toolBoxPath+toolsClassName[toolClass]+ "/"+str(curTool+1)+"_"+ toolsName[toolClassNum][curTool]+".txt").read().splitlines()[0], (0,0,0), toolboxTextInfoRect,  17)
+    PaintLayout.drawText(screen, open(toolBoxPath+toolsClassName[toolClassNum]+ "/"+str(curTool+1)+"_"+ toolsName[toolClassNum][curTool]+".txt").read().splitlines()[0], (0,0,0), toolboxTextInfoRect,  17)
     toolName = toolsName[toolClassNum][curTool]
     toolText = toolName.replace("_", " ")
     PaintLayout.drawText(screen,toolText, (0,255,0), toolBoxTextRect, 25)
@@ -115,28 +118,14 @@ def renderSizeRect(size):
     draw.rect(screen,(0,0,0),fullSizeRect ,1)
 
 
-#stamp box
-#770 end of canvas x
+# stamp box
 stamp = Stamp(screen, canvasRect, backgroundCol)
 stamp.setup()
 
 #background box
 # the actual background has to be in rect with ratio 17:12
-backgroundRect = Rect(795,183,204,144) 
-backgroundTextRect = Rect(816,152,163,30)
-backgroundBackRect = Rect(780,152,35,30)
-backgroundNextRect = Rect(980,152,35,30)
-
-draw.rect(screen,(0,0,0),backgroundRect ,1)
-draw.rect(screen,(0,0,0),backgroundTextRect ,1)
-Hover.addHover(backgroundBackRect)
-Hover.addHover(backgroundNextRect)
-
-
-backgroundShipRect = Rect(780,121,117,30)
-backgroundIslandRect = Rect(898,121,117,30)
-Hover.addHover(backgroundShipRect)
-Hover.addHover(backgroundIslandRect)
+background = Background(screen, canvasRect, backgroundCol)
+background.setup()
 
 #music box
 musicNameRect = Rect(810,10,180,25)
@@ -148,10 +137,10 @@ Hover.addHover(musicPlayRect)
 Hover.addHover(musicStopRect)
 
 #next back 
-musicBackRect = Rect(815,80,84,25)
 musicNextRect = Rect(900,80,84,25)
-Hover.addHover(musicBackRect)
-Hover.addHover(musicNextRect)
+musicBackRect = Rect(815,80,84,25)
+PaintLayout.createNextBox(screen, musicNextRect)
+PaintLayout.createBackBox(screen, musicBackRect)
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
 basicTool = BasicTool(screen)
@@ -168,8 +157,9 @@ cloneStamp = CloneStamp(screen)
 
 #Initialize text
 textTool = TextTool(screen)
-textTool.text((255,0,0),"Back",22,160, 25)
-textTool.text((0,255,0),"Next",107,160, 25) 
+# TODO: REMOVE
+# textTool.text((255,0,0),"Back",22,160, 25)
+# textTool.text((0,255,0),"Next",107,160, 25) 
 
 #-------------------------------------------------------------------------------------
 running = True
@@ -199,8 +189,8 @@ while running:
     renderSizeRect(size) # fill rectangle depending on size
     renderToolInfoText(mx,my,toolClass,tool)
     palette.renderPalette()
-    stamp.renderImage()
-    stamp.renderText()
+    stamp.render()
+    background.render()
     # the hover effect ######
     hover.createHover()
     screen.set_clip(canvasRect)
@@ -272,7 +262,8 @@ while running:
                 toolbar.checkToolbar()
                 canvas.checkClear()
                 palette.checkPalette(col)
-                stamp.handle()
+                tool = stamp.handle(tool)
+                background.handle()
                 # text tool
                 if tool == "Text":
                     textTool.text(col,msg,mx,my,size)

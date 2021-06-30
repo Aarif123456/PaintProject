@@ -1,5 +1,4 @@
 from pygame import *
-from Hover import Hover
 from PaintLayout import PaintLayout
 import os
 
@@ -23,19 +22,14 @@ class Stamp(object):
         self.stampTextRect = Rect(816,380,163,30)
         self.stampBackRect = Rect(780,380,35,30)
         self.stampNextRect = Rect(980,380,35,30)
-        Hover.addHover(self.stampBackRect)
-        Hover.addHover(self.stampNextRect)
-        PaintLayout.drawText(surface, "Back", (255,0,0), self.stampBackRect, 25)
-        PaintLayout.drawText(surface, "Next", (0,255,0), self.stampNextRect, 25)
+        PaintLayout.createNextBox(surface, self.stampNextRect)
+        PaintLayout.createBackBox(surface, self.stampBackRect)
         
         self.stampCategoryTextRect = Rect(816,349,163,30)
         self.stampCategoryBackRect = Rect(780,349,35,30)
         self.stampCategoryNextRect = Rect(980,349,35,30)
-        Hover.addHover(self.stampCategoryBackRect)
-        Hover.addHover(self.stampCategoryNextRect)
-        PaintLayout.drawText(surface, "Back", (255,0,0), self.stampCategoryBackRect, 25)
-        PaintLayout.drawText(surface, "Next", (0,255,0), self.stampCategoryNextRect, 25)
-        
+        PaintLayout.createNextBox(surface, self.stampCategoryNextRect)
+        PaintLayout.createBackBox(surface, self.stampCategoryBackRect)        
 
         self.stampRect = Rect(797,411,200,300) 
         draw.rect(surface,(0,0,0),self.stampRect ,1)
@@ -53,19 +47,17 @@ class Stamp(object):
             categoryFolderPath += "_" +self.categoryNames[c].replace(" ", "_")
             # search for files in stampCategory folder
             listdir = os.listdir(categoryFolderPath) 
-            listdir.sort() #because listdir does not guarantee order
+            listdir.sort() # because listdir does not guarantee order
 
-            stampImage = [] #list to hold all the stamps
+            stampImage = [] # list to hold all the stamps
             for file in listdir:
-                if file.endswith(".png"):#get only the picture
+                if file.endswith(".png"):#g et only the picture
                     stampImage.append(image.load(f"{categoryFolderPath}/{file}"))
             self.stampImages[self.categoryNames[c]] = stampImage #store images in dictionary
 
             #get name of each character and store into list
             stampName=open(categoryFolderPath + "/names.txt","r").read().splitlines()
             self.stampNames.append(stampName)
-
-        self.renderText()
 
     def getStampName(self):
         return self.stampNames[self.stampCategory][self.stampNum]
@@ -77,8 +69,6 @@ class Stamp(object):
         return self.stampImages[self.categoryNames[self.stampCategory]][self.stampNum]
 
     def renderText(self):
-        draw.rect(self.surface,self.backgroundCol,self.stampTextRect, 0)
-        draw.rect(self.surface,self.backgroundCol,self.stampCategoryTextRect, 0)
         PaintLayout.drawText(self.surface, self.getStampName(), (0,0,0), self.stampTextRect, 20)
         PaintLayout.drawText(self.surface, self.getStampCategory(), (0,0,0), self.stampCategoryTextRect, 20)
 
@@ -86,7 +76,11 @@ class Stamp(object):
         draw.rect(self.surface,self.backgroundCol, self.stampRect) 
         self.surface.blit(self.getImagePath(),self.stampRect)
 
-    def handle(self):
+    def render(self):
+        self.renderImage()
+        self.renderText()
+
+    def handle(self,tool ):
         mx,my=mouse.get_pos()
         if self.stampNextRect.collidepoint(mx,my)==True:
             self.stampNum += 1
@@ -98,8 +92,11 @@ class Stamp(object):
             self.stampCategory %= Stamp.MAX_STAMPS
         elif self.stampCategoryBackRect.collidepoint(mx,my)==True:
             self.stampCategory = max(0, self.stampCategory-1)
-        elif self.canvasRect.collidepoint(mx,my):
+        elif self.canvasRect.collidepoint(mx,my) and tool=="Stamp":
             self.surface.blit(self.getImagePath(),(mx-100,my-190))
+        elif self.stampRect.collidepoint(mx,my)==True:
+            tool = "Stamp"
+        return tool
         
         
 
