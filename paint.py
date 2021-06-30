@@ -71,6 +71,7 @@ for i in range(len(toolsName[0])):
 
 
 def renderToolbox(toolClassNum):
+    PaintLayout.drawText(screen,toolsClassName[toolClassNum].title(), (0,0,0), toolBoxClassTextRect, 35)
     for i in range(len(toolsName[toolClassNum])):
         draw.rect(screen, backgroundCol, toolBoxRect[i])
         draw.rect(screen, (0, 0, 0), toolBoxRect[i], 2)
